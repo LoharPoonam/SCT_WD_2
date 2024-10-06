@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stopwatch</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="timer-display">
+            00 : 00 : 00 : 000
+        </div>
+        <div class="button">
+            <button id="startBtn" class="startBtn">Start</button>
+            <button id="pauseBtn" class="pauseBtn">Pause</button>
+            <button id="resetBtn" class="resetBtn">Reset</button>
+            <button id="lapBtn" class="lap"  onclick="recordLap()">Lap</button>
+        </div>
+    </div> 
+    <div class="laps">
+        <ul id="laps"></ul>
+    </div>
+    </div>
+    <script>
+        let [milliseconds, seconds, minutes, hours] = [0, 0, 0, 0];
+        let timeRef = document.querySelector(".timer-display");
+        let int = null;
+        let lapCounter = 0;
+        const laps = document.getElementById('laps');
+        let running = false; 
+        let canRecordLap = true; // Flag to prevent multiple lap recordings
+    
+        // Start button event listener
+        document.getElementById("startBtn").addEventListener("click", () => {
+            if (int !== null) {
+                clearInterval(int);
+            }
+            int = setInterval(displayTimer, 10);
+            running = true;
+        });
+    
+        // Pause button event listener
+        document.getElementById("pauseBtn").addEventListener("click", () => {
+            clearInterval(int);
+            running = false;
+        });
+    
+        // Reset button event listener
+        document.getElementById("resetBtn").addEventListener("click", () => {
+            clearInterval(int);
+            [milliseconds, seconds, minutes, hours] = [0, 0, 0, 0];
+            timeRef.innerHTML = "00 : 00 : 00 : 000";
+            laps.innerHTML = '';
+            lapCounter = 0;
+            running = false;
+            canRecordLap = true; // Reset the lap recording flag
+        });
+    
+        // Lap button event listener
+        document.getElementById("lapBtn").addEventListener("click", recordLap);
+    
+        // Function to display the updated timer
+        function displayTimer() {
+            milliseconds += 10;
+    
+            if (milliseconds == 1000) {
+                milliseconds = 0;
+                seconds++;
+    
+                if (seconds == 60) {
+                    seconds = 0;
+                    minutes++;
+    
+                    if (minutes == 60) {
+                        minutes = 0;
+                        hours++;
+                    }
+                }
+            }
+    
+            // Formatting time display
+            let h = hours < 10 ? "0" + hours : hours;
+            let m = minutes < 10 ? "0" + minutes : minutes;
+            let s = seconds < 10 ? "0" + seconds : seconds;
+            let ms = milliseconds < 10 
+                ? "00" + milliseconds 
+                : milliseconds < 100 
+                ? "0" + milliseconds 
+                : milliseconds;
+    
+            timeRef.innerHTML = `${h} : ${m} : ${s} : ${ms}`;
+        }
+    
+        // Function to record a lap
+        function recordLap() {
+            if (running && canRecordLap) {
+                canRecordLap = false; // Set the flag to prevent further recordings
+                lapCounter++;
+                const lapTime = timeRef.innerHTML;
+                const lapItem = document.createElement('li');
+                lapItem.textContent = `Lap ${lapCounter}: ${lapTime}`;
+                laps.appendChild(lapItem);
+                
+                // Reset the flag after a short delay
+                setTimeout(() => {
+                    canRecordLap = true; // Allow recording again after 200 milliseconds
+                }, 200);
+            }
+        }
+    </script>
+    
+    
+    
+</body>
+
+</html>
